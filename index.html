@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07111f">
+  <meta name="description" content="Toolsku Tracker — berbagi lokasi dengan persetujuan.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="styles.css">
+  <title>Toolsku Tracker</title>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Toolsku Tracker beranda"><span class="brand-icon">⌖</span><span>Toolsku <b>Tracker</b><small>Berbagi lokasi, lebih aman</small></span></a>
+    <button id="themeBtn" class="icon-btn" aria-label="Ganti tema">◐</button>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div><p class="eyebrow">LOCATION SHARING</p><h1>Lokasi, dalam kendalimu.</h1><p class="muted">Bagikan lokasi hanya saat kamu menyetujui dan selama sesi aktif.</p></div>
+      <div class="hero-pin">⌖</div>
+    </section>
+
+    <section id="authCard" class="panel">
+      <div class="panel-head"><div><p class="eyebrow">AKUN</p><h2>Masuk atau daftar</h2></div><span class="status neutral">Belum masuk</span></div>
+      <p class="muted small">Gunakan email dan kata sandi. Aktifkan Email/Password di Firebase Authentication sebelum memakai mode online.</p>
+      <form id="authForm" class="stack">
+        <label>Email<input id="email" type="email" autocomplete="email" placeholder="kamu@email.com" required></label>
+        <label>Kata sandi<input id="password" type="password" autocomplete="current-password" minlength="6" placeholder="Minimal 6 karakter" required></label>
+        <div class="actions"><button class="btn primary" type="submit">Masuk</button><button class="btn secondary" type="button" id="signupBtn">Buat akun</button></div>
+      </form>
+      <p id="authMsg" class="message" role="status"></p>
+    </section>
+
+    <section id="appPanel" hidden>
+      <div class="panel status-panel">
+        <div class="panel-head"><div><p class="eyebrow">STATUS BERBAGI</p><h2 id="shareHeading">Lokasi belum dibagikan</h2></div><span id="gpsStatus" class="status neutral">Tidak aktif</span></div>
+        <p id="shareCopy" class="muted">Mulai sesi untuk membuat tautan berbagi yang dapat dibuka orang yang kamu undang.</p>
+        <label class="consent"><input id="consent" type="checkbox"><span>Saya memahami bahwa lokasi GPS perangkat ini akan dibagikan kepada orang yang memiliki tautan sesi, dan saya setuju memulainya.</span></label>
+        <div class="actions wrap-actions"><button id="startBtn" class="btn primary">⌖ Mulai berbagi GPS</button><button id="stopBtn" class="btn danger" disabled>■ Berhenti berbagi</button></div>
+        <div id="shareLinkRow" class="share-row" hidden><input id="shareLink" readonly aria-label="Tautan sesi"><button id="copyBtn" class="btn secondary">Salin tautan</button></div>
+        <p class="tiny muted">Berbagi berhenti saat tombol berhenti ditekan. Jangan bagikan tautan kepada orang yang tidak dipercaya.</p>
+      </div>
+
+      <div class="stats">
+        <article class="stat"><span>Jarak sejak mulai</span><strong id="distance">0 m</strong></article>
+        <article class="stat"><span>Akurasi GPS</span><strong id="accuracy">—</strong></article>
+        <article class="stat"><span>Baterai</span><strong id="battery">Tidak tersedia</strong></article>
+      </div>
+
+      <section class="panel map-panel">
+        <div class="panel-head"><div><p class="eyebrow">PETA</p><h2>Lokasi terkini</h2></div><span id="lastUpdate" class="tiny muted">Belum ada pembaruan</span></div>
+        <div id="map" aria-label="Peta lokasi"></div>
+        <div class="coords"><div><span>Lintang</span><strong id="lat">—</strong></div><div><span>Bujur</span><strong id="lng">—</strong></div></div>
+        <a id="mapsLink" class="text-link" href="#" target="_blank" rel="noopener" hidden>Buka di peta eksternal ↗</a>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><div><p class="eyebrow">AKTIVITAS</p><h2>Riwayat lokasi</h2></div><button id="exportBtn" class="btn secondary small-btn">Ekspor CSV</button></div>
+        <p class="muted small">Riwayat sesi ini ditampilkan di perangkat ini. Jangan gunakan perangkat bersama untuk data sensitif.</p>
+        <div id="history" class="history"><p class="muted">Belum ada data lokasi.</p></div>
+      </section>
+
+      <section id="viewerPanel" class="panel" hidden>
+        <p class="eyebrow">SESI YANG DIBAGIKAN</p><h2>Lokasi pengundang</h2>
+        <p class="muted small">Lokasi hanya muncul jika pemilik sesi sedang berbagi dan akses database diizinkan.</p>
+        <div id="viewerState" class="message"></div>
+      </section>
+      <div class="account-row"><span id="signedInAs" class="muted small"></span><button id="logoutBtn" class="btn secondary">Keluar</button></div>
+    </section>
+
+    <section class="panel info-panel">
+      <div class="info-icon">✓</div><div><h3>Privasi adalah prioritas</h3><p class="muted small">Tool ini tidak melacak lewat nomor telepon/operator. Untuk berbagi lintas perangkat diperlukan akun Firebase, aturan akses yang benar, HTTPS, dan persetujuan pemilik lokasi.</p></div>
+    </section>
+    <footer>Toolsku Tracker <span>•</span> Versi awal</footer>
+  </main>
+
+  <nav class="bottom-nav"><a href="#authCard">⌂<small>Beranda</small></a><a href="#map">⌖<small>Peta</small></a><a href="#history">◷<small>Riwayat</small></a><a href="#authCard">⚙<small>Akun</small></a></nav>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
